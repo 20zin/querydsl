@@ -2,7 +2,6 @@ package com.example.querydsl.entity;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ public class QuerydslBasicTest {
     @Autowired
     EntityManager em;
 
+    JPAQueryFactory factory = new JPAQueryFactory(em);
     @BeforeEach
     public void before(){
         Team teamA = new Team("teamA");
@@ -56,7 +56,6 @@ public class QuerydslBasicTest {
     @Test
     public void startQuerydsl(){
         //컴파일 오류로 알게됨
-        JPAQueryFactory factory = new JPAQueryFactory(em);
 
          Member findMember = factory.select(member)
                 .from(member)
@@ -64,5 +63,15 @@ public class QuerydslBasicTest {
                 .fetchOne();
 
          assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    public void search(){
+        Member findMember = factory.selectFrom(member)
+                .where(member.username.eq("member1")
+                        .and(member.age.eq(10)))
+                .fetchOne();
+
+        assertThat(findMember.getUsername()).isEqualTo("member1");
     }
 }
