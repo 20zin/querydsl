@@ -5,7 +5,6 @@ import com.example.querydsl.dto.MemberTeamDto;
 import com.example.querydsl.dto.QMemberTeamDto;
 import com.example.querydsl.entity.Member;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -107,6 +106,23 @@ public class MemberJpaRepository {
                         ageLoe(condition.getAgeLoe())
                 )
                 .fetch();
+    }
+
+    public List<Member> searchMember(MemberSearchCondition condition){
+        return queryFactory.
+                selectFrom(member)
+                .leftJoin(member.team, team)
+                .where(
+                        usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageGoe(condition.getAgeGoe()),
+                        ageLoe(condition.getAgeLoe())
+                )
+                .fetch();
+    }
+
+    private BooleanExpression ageBetween(int ageLoe, int ageGoe) {
+        return ageGoe(ageLoe).and(ageGoe(ageGoe));
     }
 
     private BooleanExpression usernameEq(String username) {
